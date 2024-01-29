@@ -82,7 +82,7 @@ def manage_events():
       token.write(creds.to_json())
 
   try:
-    create_event(creds)
+    get_events(creds)
 
   except HttpError as error:
     print(f"An error occurred: {error}")
