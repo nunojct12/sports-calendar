@@ -33,13 +33,10 @@ def create_event():
 
 
 def main():
-    url = "https://v3.football.api-sports.io/leagues"
+    url = "https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=134114"
 
     payload = {}
-    headers = {
-        "x-rapidapi-key": api_key,
-        "x-rapidapi-host": "v3.football.api-sports.io",
-    }
+    headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
