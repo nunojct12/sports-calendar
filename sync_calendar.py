@@ -1,3 +1,4 @@
+import urllib.request, json
 from gcsa.event import Event
 from gcsa.google_calendar import GoogleCalendar
 from gcsa.recurrence import Recurrence, DAILY, SU, SA
@@ -33,14 +34,14 @@ def create_event():
 
 
 def main():
-    url = "https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=134114"
+    url = "https://www.ligaportugal.pt/api/v1/team/matches?id=157&season=20242025&filter=next&limit=true"
 
-    payload = {}
-    headers = {}
+    import requests
 
-    response = requests.request("GET", url, headers=headers, data=payload)
+    r = requests.get(url)
 
-    print(response.text)
+    info = r.json()[1]
+    print(info)
 
     # event = create_event()
     # calendar.add_event(event)
