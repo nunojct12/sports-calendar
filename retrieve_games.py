@@ -26,7 +26,7 @@ def get_games_portugal():
         if safe_get(match, "fixtureDateIsDefined") == True:
             new_match["homeTeam"] = safe_get(match, "homeTeam", "name")
             new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
-            new_match["competition"] = safe_get(match, "competitionName")
+            new_match["competitionName"] = safe_get(match, "competitionName")
             new_match["broadcastOperator"] = safe_get(match, "broadcastOperator")
             new_match["matchDate"] = safe_get(match, "matchDate")
 
