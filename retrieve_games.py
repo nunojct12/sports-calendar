@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 
 fcporto_id = 157
@@ -28,7 +29,10 @@ def get_games_portugal():
             new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
             new_match["competitionName"] = safe_get(match, "competitionName")
             new_match["broadcastOperator"] = safe_get(match, "broadcastOperator")
-            new_match["matchDate"] = safe_get(match, "matchDate")
+            match_date = datetime.strptime(
+                safe_get(match, "matchDate"), "%Y-%m-%dT%H:%M:%SZ"
+            )
+            new_match["matchDate"] = match_date
 
             matches_dict.append(new_match)
 
