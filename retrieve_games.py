@@ -1,5 +1,6 @@
-from datetime import datetime
+import datetime
 import requests
+from zoneinfo import ZoneInfo
 
 fcporto_id = 157
 felgueiras_id = 142
@@ -29,11 +30,20 @@ def get_games_portugal():
             new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
             new_match["competitionName"] = safe_get(match, "competitionName")
             new_match["broadcastOperator"] = safe_get(match, "broadcastOperator")
-            match_date = datetime.strptime(
+            match_date = datetime.datetime.strptime(
                 safe_get(match, "matchDate"), "%Y-%m-%dT%H:%M:%SZ"
             )
+            new_date = match_date.astimezone(ZoneInfo("Europe/Lisbon"))
             new_match["matchDate"] = match_date
 
             matches_dict.append(new_match)
 
     return matches_dict
+
+
+def main():
+    get_games_portugal()
+
+
+if __name__ == "__main__":
+    main()

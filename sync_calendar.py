@@ -5,7 +5,7 @@ from beautiful_date import Jan, Apr
 import os
 from dotenv import load_dotenv
 from retrieve_games import get_games_portugal
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 load_dotenv()
@@ -23,7 +23,7 @@ def create_event(title: str, description: str, match_date: datetime):
         description=description,
         start=match_date,
         end=match_date + timedelta(hours=2),
-        timezone="UTC",
+        timezone="Europe/Lisbon",
         default_reminders=True,
     )
 
@@ -39,17 +39,8 @@ def update_event_time(previous_event: Event, match_date: datetime):
     calendar.update_event(previous_event, calendar_id=calendar_id)
 
 
-def main():
-    calendar_events_list = calendar.get_events(
-        time_min=datetime.now(), calendar_id=calendar_id, timezone="UTC"
-    )
-    previous_events_dict = {}
-    for event in calendar_events_list:
-        previous_events_dict[event.summary] = event
-
-    match_list = get_games_portugal()
-
-    for match in match_list:
+def add_events_to_calendar(matches_list: list, previous_events_dict: dict):
+    for match in matches_list:
         title = f'{match["homeTeam"]} vs {match["awayTeam"]}'
         description = f'Competition: {match["competitionName"]}\nBroadcaster: {match["broadcastOperator"]}'
         match_date = match["matchDate"]
@@ -63,10 +54,23 @@ def main():
             if (
                 previous_event.start
                 != match_date  # FIXME: date returned is not in the correct timezone. Need to figure out why
-            ):  # end=match_date + timedelta(hours=2), if event exists, but has a different start time (due to the match time being updated), update the event
+            ):  # if event exists, but has a different start time (due to the match time being updated), update the event
                 update_event_time(previous_event, match_date)
 
         return
+
+
+def main():
+    calendar_events_list = calendar.get_events(
+        time_min=datetime.now(), calendar_id=calendar_id, timezone="Europe/Lisbon"
+    )
+    previous_events_dict = {}
+    for event in calendar_events_list:
+        previous_events_dict[event.summary] = event
+
+    matches_list = get_games_portugal()
+
+    add_events_to_calendar(matches_list, previous_events_dict)
 
 
 if __name__ == "__main__":
