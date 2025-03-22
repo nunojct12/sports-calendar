@@ -13,7 +13,7 @@ def safe_get(data, *keys, default="Unknown"):
         return default
 
 
-def get_team_ids():
+def get_football_team_ids():
     try:
         with open("data/team_ids.json", "r") as file:
             return json.load(file)
@@ -22,7 +22,7 @@ def get_team_ids():
 
 
 def get_football_events():
-    team_to_retrieve = get_team_ids()
+    team_to_retrieve = get_football_team_ids()
     matches_dict = []
 
     for team, team_id in team_to_retrieve.items():
