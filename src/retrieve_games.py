@@ -49,8 +49,47 @@ def get_football_events():
     return matches_dict
 
 
+def get_formula1_events():
+    gps_dict = []
+    gp_events_list = [
+        "Practice 1",
+        "Practice 2",
+        "Practice 3",
+        "Qualification 1",
+        "Race",
+        "Sprint Shootout 1",
+        "Sprint",
+    ]
+
+    url = "https://www.sofascore.com/api/v1/stage/209766/substages"
+
+    scraper = cloudscraper.create_scraper()
+    scraped_text = scraper.get(url).text
+    response = json.loads(scraped_text)
+
+    grand_prixs = safe_get(response, "stages")
+
+    for gp in grand_prixs:
+        new_gp = {}
+        if safe_get(gp, "status", "type") == "notstarted":
+            gp_substages = safe_get(gp, "eventSubstages")
+            for gp_substage in gp_substages:
+                if safe_get(gp_substage, "name") in gp_events_list:
+                    new_gp["stageName"] = safe_get(gp_substage, "name")
+                    new_gp["gp"] = safe_get(gp_substage, "stageParent", "description")
+                    new_gp["startDate"] = safe_get(gp, "startDateTimestamp")
+                    new_gp["circuit"] = safe_get(gp, "info", "circuit")
+                    new_gp["circuitCity"] = safe_get(gp, "info", "circuitCity")
+                    new_gp["circuitCountry"] = safe_get(gp, "info", "circuitCountry")
+
+                    gps_dict.append(new_gp)
+
+    return gps_dict
+
+
 def main():
-    get_football_events()
+    # get_football_events()
+    get_formula1_events()
 
 
 if __name__ == "__main__":
