@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 import requests
 from zoneinfo import ZoneInfo
 
@@ -17,24 +18,22 @@ def safe_get(data, *keys, default="Unknown"):
 
 
 def get_games_portugal():
-    url = f"https://www.ligaportugal.pt/api/v1/team/matches?id={fcporto_id}&season=20242025&filter=next&limit=true"
+    # url = f"https://www.ligaportugal.pt/api/v1/team/matches?id={fcporto_id}&season=20242025&filter=next&limit=true"
+    url = "https://www.sofascore.com/api/v1/team/3002/events/next/0"
 
-    matches = requests.get(url).json()
-
+    response = requests.get(url).json()
+    matches = safe_get(response, "events")
     matches_dict = []
 
     for match in matches:
         new_match = {}
-        if safe_get(match, "fixtureDateIsDefined") == True:
+        if safe_get(match, "detailId") == 1:
             new_match["homeTeam"] = safe_get(match, "homeTeam", "name")
             new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
-            new_match["competitionName"] = safe_get(match, "competitionName")
-            new_match["broadcastOperator"] = safe_get(match, "broadcastOperator")
-            match_date = datetime.datetime.strptime(
-                safe_get(match, "matchDate"), "%Y-%m-%dT%H:%M:%SZ"
+            new_match["competition"] = safe_get(match, "tournament", "name")
+            new_match["matchDate"] = datetime.datetime.fromtimestamp(
+                safe_get(match, "startTimestamp")
             )
-            new_date = match_date.astimezone(ZoneInfo("Europe/Lisbon"))
-            new_match["matchDate"] = match_date
 
             matches_dict.append(new_match)
 

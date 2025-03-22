@@ -23,7 +23,6 @@ def create_event(title: str, description: str, match_date: datetime):
         description=description,
         start=match_date,
         end=match_date + timedelta(hours=2),
-        timezone="Europe/Lisbon",
         default_reminders=True,
     )
 
@@ -42,10 +41,10 @@ def update_event_time(previous_event: Event, match_date: datetime):
 def add_events_to_calendar(matches_list: list, previous_events_dict: dict):
     for match in matches_list:
         title = f'{match["homeTeam"]} vs {match["awayTeam"]}'
-        description = f'Competition: {match["competitionName"]}\nBroadcaster: {match["broadcastOperator"]}'
+        description = f'Competition: {match["competition"]}'
         match_date = match["matchDate"]
         previous_event = (
-            previous_events_dict[title] if len(previous_events_dict) > 0 else False
+            previous_events_dict[title] if title in previous_events_dict else False
         )
 
         if not previous_event:  # if event doesn't exist, create it
@@ -62,7 +61,7 @@ def add_events_to_calendar(matches_list: list, previous_events_dict: dict):
 
 def main():
     calendar_events_list = calendar.get_events(
-        time_min=datetime.now(), calendar_id=calendar_id, timezone="Europe/Lisbon"
+        time_min=datetime.now(), calendar_id=calendar_id
     )
     previous_events_dict = {}
     for event in calendar_events_list:
