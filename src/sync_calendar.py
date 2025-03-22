@@ -1,10 +1,8 @@
 from gcsa.event import Event
 from gcsa.google_calendar import GoogleCalendar
-from gcsa.recurrence import Recurrence, DAILY, SU, SA
-from beautiful_date import Jan, Apr
 import os
 from dotenv import load_dotenv
-from retrieve_games import get_games_portugal
+from retrieve_games import get_football_events
 from datetime import datetime, timedelta
 
 
@@ -23,7 +21,6 @@ def create_event(title: str, description: str, match_date: datetime):
         description=description,
         start=match_date,
         end=match_date + timedelta(hours=2),
-        timezone="UTC",
         default_reminders=True,
     )
 
@@ -39,34 +36,43 @@ def update_event_time(previous_event: Event, match_date: datetime):
     calendar.update_event(previous_event, calendar_id=calendar_id)
 
 
-def main():
+def get_calendar_events():
     calendar_events_list = calendar.get_events(
-        time_min=datetime.now(), calendar_id=calendar_id, timezone="UTC"
+        time_min=datetime.now(), calendar_id=calendar_id
     )
     previous_events_dict = {}
     for event in calendar_events_list:
         previous_events_dict[event.summary] = event
 
-    match_list = get_games_portugal()
+    return previous_events_dict
 
-    for match in match_list:
+
+def add_events_to_calendar(matches_list: list):
+    calendar_events = get_calendar_events()
+
+    for match in matches_list:
         title = f'{match["homeTeam"]} vs {match["awayTeam"]}'
-        description = f'Competition: {match["competitionName"]}\nBroadcaster: {match["broadcastOperator"]}'
+        description = f'Competition: {match["competition"]}'
         match_date = match["matchDate"]
-        previous_event = (
-            previous_events_dict[title] if len(previous_events_dict) > 0 else False
+
+        existing_match_event = (
+            calendar_events[title] if title in calendar_events else False
         )
 
-        if not previous_event:  # if event doesn't exist, create it
+        if not existing_match_event:  # if event doesn't exist, create it
+            print(title, description, match_date)
             create_event(title, description, match_date)
         else:
             if (
-                previous_event.start
-                != match_date  # FIXME: date returned is not in the correct timezone. Need to figure out why
-            ):  # end=match_date + timedelta(hours=2), if event exists, but has a different start time (due to the match time being updated), update the event
-                update_event_time(previous_event, match_date)
+                existing_match_event.start.timestamp() != match_date.timestamp()
+            ):  # if event exists, but has a different start time (due to the match time being updated), update the event
+                update_event_time(existing_match_event, match_date)
 
-        return
+
+def main():
+    matches_list = get_football_events()
+
+    add_events_to_calendar(matches_list)
 
 
 if __name__ == "__main__":

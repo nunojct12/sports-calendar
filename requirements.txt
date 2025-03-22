@@ -1,2 +1,3 @@
 gcsa    #google calendar simple api - simplify managing google calendar API
 python-dotenv    #use enviroment variables
+cloudscraper    #scrape websites
