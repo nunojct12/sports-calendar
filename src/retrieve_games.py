@@ -70,14 +70,23 @@ def get_formula1_events():
     grand_prixs = safe_get(response, "stages")
 
     for gp in grand_prixs:
-        new_gp = {}
+
         if safe_get(gp, "status", "type") == "notstarted":
             gp_substages = safe_get(gp, "eventSubstages")
             for gp_substage in gp_substages:
                 if safe_get(gp_substage, "name") in gp_events_list:
-                    new_gp["stageName"] = safe_get(gp_substage, "name")
+                    new_gp = {}
+                    stage_name = safe_get(gp_substage, "name")
+                    if stage_name == "Qualification 1":
+                        new_gp["stageName"] = "Qualification"
+                    elif stage_name == "Sprint Shootout 1":
+                        new_gp["stageName"] = "Sprint Shootout"
+                    else:
+                        new_gp["stageName"] = stage_name
                     new_gp["gp"] = safe_get(gp_substage, "stageParent", "description")
-                    new_gp["startDate"] = safe_get(gp, "startDateTimestamp")
+                    new_gp["startDate"] = datetime.datetime.fromtimestamp(
+                        safe_get(gp_substage, "startDateTimestamp")
+                    )
                     new_gp["circuit"] = safe_get(gp, "info", "circuit")
                     new_gp["circuitCity"] = safe_get(gp, "info", "circuitCity")
                     new_gp["circuitCountry"] = safe_get(gp, "info", "circuitCountry")
