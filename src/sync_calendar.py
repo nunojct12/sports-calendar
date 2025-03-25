@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from retrieve_games import get_football_events, get_formula1_events
 from datetime import datetime, timedelta
+import argparse
 
 
 load_dotenv()
@@ -102,12 +103,34 @@ def add_f1_events_to_calendar(f1_events_list: list):
                 update_event_time(existing_f1_event, event_date, event_end_date)
 
 
-def main():
-    football_matches_list = get_football_events()
-    f1_events = get_formula1_events()
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--f1-events",
+    action=argparse.BooleanOptionalAction,
+    help="Enable or disable adding Formula 1 events to the calendar.",
+    default=True,
+)
+parser.add_argument(
+    "--football-events",
+    action=argparse.BooleanOptionalAction,
+    help="Enable or disable adding Football events to the calendar.",
+    default=True,
+)
+args = parser.parse_args()
+f1_events = args.f1_events
+football_events = args.football_events
 
-    add_football_matches_to_calendar(football_matches_list)
-    add_f1_events_to_calendar(f1_events)
+
+def main():
+    if football_events:
+        print("Adding footy")
+        football_matches_list = get_football_events()
+        add_football_matches_to_calendar(football_matches_list)
+
+    if f1_events:
+        print("GET IN THERE")
+        formula1_events = get_formula1_events()
+        add_f1_events_to_calendar(formula1_events)
 
 
 if __name__ == "__main__":
