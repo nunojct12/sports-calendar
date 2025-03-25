@@ -94,12 +94,3 @@ def get_formula1_events():
                     gps_dict.append(new_gp)
 
     return gps_dict
-
-
-def main():
-    # get_football_events()
-    get_formula1_events()
-
-
-if __name__ == "__main__":
-    main()
