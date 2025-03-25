@@ -34,3 +34,5 @@ From the root folder
 -   `python3 src/sync_calendar.py` 
 -   `--no-football-events`  - Doesn´t add football events
 -   `--no-f1-events`  - Doesn´t add Formula1 events
+
+Only the events with a set date are added to the calendar, so I recommend running the script at least every week, to add the new events and update the old ones that might have a new date/time.
