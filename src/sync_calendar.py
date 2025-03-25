@@ -123,12 +123,10 @@ football_events = args.football_events
 
 def main():
     if football_events:
-        print("Adding footy")
         football_matches_list = get_football_events()
         add_football_matches_to_calendar(football_matches_list)
 
     if f1_events:
-        print("GET IN THERE")
         formula1_events = get_formula1_events()
         add_f1_events_to_calendar(formula1_events)
 
