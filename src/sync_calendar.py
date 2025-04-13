@@ -83,10 +83,9 @@ def add_f1_events_to_calendar(f1_events_list: list):
         title = f'{event["gp"]} - {event["stageName"]}'
         description = f'Circuit: {event["circuit"]} - {event["circuitCity"]}, {event["circuitCountry"]}'
         event_date = event["startDate"]
+        event_end_date = event_date + timedelta(hours=1)
         if event["stageName"] == "Race":
             event_end_date = event_date + timedelta(hours=2)
-        else:
-            event_end_date = event_date + timedelta(hours=1)
 
         existing_f1_event = (
             calendar_events[title] if title in calendar_events else False
