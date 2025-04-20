@@ -2,7 +2,8 @@ from gcsa.event import Event
 from gcsa.google_calendar import GoogleCalendar
 import os
 from dotenv import load_dotenv
-from retrieve_games import get_football_events, get_formula1_events
+from retrieve_games import get_formula1_events
+from retrieve_games_pw import get_football_events
 from datetime import datetime, timedelta
 import argparse
 
@@ -122,6 +123,7 @@ football_events = args.football_events
 
 def main():
     if football_events:
+        # football_matches_list = get_football_events()
         football_matches_list = get_football_events()
         add_football_matches_to_calendar(football_matches_list)
 
