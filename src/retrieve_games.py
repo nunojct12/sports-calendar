@@ -25,23 +25,14 @@ def get_football_events():
     team_to_retrieve = get_football_team_ids()
     matches_dict = []
 
-    with sync_playwright() as p:
-        browser = p.firefox.launch()
+    with sync_playwright() as playwright:
+        browser = playwright.firefox.launch()
         context = browser.new_context()
         page = context.new_page()
 
         for team, team_id in team_to_retrieve.items():
             print(f"Retrieving matches for {team}")
             url = f"https://www.sofascore.com/api/v1/team/{team_id}/events/next/0"
-
-            page.set_extra_http_headers(
-                {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0",
-                    "Accept-Language": "en-US,en;q=0.9",
-                    "Referer": "https://www.sofascore.com/",
-                    "Origin": "https://www.sofascore.com",
-                }
-            )
 
             page.goto(url)
             response_text = page.content()
