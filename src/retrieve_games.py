@@ -1,6 +1,6 @@
 import datetime
 import json
-import cloudscraper
+from playwright.sync_api import sync_playwright
 
 
 def safe_get(data, *keys, default="Unknown"):
@@ -25,26 +25,53 @@ def get_football_events():
     team_to_retrieve = get_football_team_ids()
     matches_dict = []
 
-    for team, team_id in team_to_retrieve.items():
-        url = f"https://www.sofascore.com/api/v1/team/{team_id}/events/next/0"
+    with sync_playwright() as p:
+        browser = p.firefox.launch()
+        context = browser.new_context()
+        page = context.new_page()
 
-        scraper = cloudscraper.create_scraper()
-        scraped_text = scraper.get(url).text
-        response = json.loads(scraped_text)
+        for team, team_id in team_to_retrieve.items():
+            print(f"Retrieving matches for {team}")
+            url = f"https://www.sofascore.com/api/v1/team/{team_id}/events/next/0"
 
-        matches = safe_get(response, "events")
+            page.set_extra_http_headers(
+                {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Referer": "https://www.sofascore.com/",
+                    "Origin": "https://www.sofascore.com",
+                }
+            )
 
-        for match in matches:
-            new_match = {}
-            if safe_get(match, "detailId") != "Unknown":
-                new_match["homeTeam"] = safe_get(match, "homeTeam", "name")
-                new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
-                new_match["competition"] = safe_get(match, "tournament", "name")
-                new_match["matchDate"] = datetime.datetime.fromtimestamp(
-                    safe_get(match, "startTimestamp")
-                )
+            page.goto(url)
+            response_text = page.content()
+            # Remove the HTML wrapper to extract only the JSON part
+            if response_text.startswith("<html>"):
+                start_index = response_text.find("<pre>") + len("<pre>")
+                end_index = response_text.find("</pre>")
+                response_text = response_text[start_index:end_index]
 
-                matches_dict.append(new_match)
+            if '"error":' in response_text:
+                raise ValueError("Failed to retrieve data: 403 Forbidden")
+
+            response = json.loads(response_text)
+            matches = safe_get(response, "events")
+
+            for match in matches:
+                new_match = {}
+                if safe_get(match, "detailId") != "Unknown":
+                    new_match["homeTeam"] = safe_get(match, "homeTeam", "name")
+                    new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
+                    new_match["competition"] = safe_get(match, "tournament", "name")
+                    new_match["matchDate"] = datetime.datetime.fromtimestamp(
+                        safe_get(match, "startTimestamp")
+                    )
+                    print(
+                        f"Match with details found: {new_match['homeTeam']} vs {new_match['awayTeam']}"
+                    )
+                    matches_dict.append(new_match)
+
+        browser.close()
 
     return matches_dict
 
