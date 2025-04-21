@@ -58,7 +58,7 @@ def add_football_matches_to_calendar(matches_list: list):
 
     for match in matches_list:
         title = f'{match["homeTeam"]} vs {match["awayTeam"]}'
-        description = f'Competition: {match["competition"]}'
+        description = f'Competition: {match["competition"]}\nRound: {match["round"]}'
         match_date = match["matchDate"]
         match_end_date = match_date + timedelta(hours=2)
 

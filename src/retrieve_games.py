@@ -57,7 +57,13 @@ def get_football_events():
                 if safe_get(match, "detailId") != "Unknown":
                     new_match["homeTeam"] = safe_get(match, "homeTeam", "name")
                     new_match["awayTeam"] = safe_get(match, "awayTeam", "name")
-                    new_match["competition"] = safe_get(match, "tournament", "name")
+                    new_match["competition"] = safe_get(match, "season", "name")
+
+                    roundInfo = safe_get(match, "roundInfo", "name")
+                    if roundInfo == "Unknown":
+                        roundInfo = f"{str(safe_get(match, 'roundInfo', 'round'))}"
+
+                    new_match["round"] = roundInfo
                     new_match["matchDate"] = datetime.datetime.fromtimestamp(
                         safe_get(match, "startTimestamp")
                     )
