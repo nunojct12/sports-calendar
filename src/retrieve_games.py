@@ -72,8 +72,8 @@ def get_football_events():
 
 
 def get_formula1_events():
-    gps_dict = []
-    gp_events_list = [
+    events_list = []
+    grand_prixs_events_titles = [
         "1st Practice",
         "Qualification",
         "Sprint Qualifying",
@@ -95,14 +95,13 @@ def get_formula1_events():
 
         response = json.loads(response_text)
 
-        grand_prixs = safe_get(response, "stage", "substages")
+        grand_prixs_list = safe_get(response, "stage", "substages")
 
-        for gp in grand_prixs:
-
+        for gp in grand_prixs_list:
             if safe_get(gp, "status", "type") == "notstarted":
                 gp_substages = safe_get(gp, "substages")
                 for gp_substage in gp_substages:
-                    if safe_get(gp_substage, "name") in gp_events_list:
+                    if safe_get(gp_substage, "name") in grand_prixs_events_titles:
                         new_gp = {}
                         stage_name = safe_get(gp_substage, "name")
                         new_gp["stageName"] = stage_name
@@ -118,6 +117,6 @@ def get_formula1_events():
                             gp, "info", "circuitCountry"
                         )
 
-                        gps_dict.append(new_gp)
+                        events_list.append(new_gp)
 
-    return gps_dict
+    return events_list
