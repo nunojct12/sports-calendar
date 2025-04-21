@@ -47,7 +47,8 @@ def get_calendar_events():
     )
     previous_events_dict = {}
     for event in calendar_events_list:
-        previous_events_dict[event.summary] = event
+        previous_event_title = f"{event.summary} - {event.description}"
+        previous_events_dict[previous_event_title] = event
 
     return previous_events_dict
 
@@ -61,8 +62,11 @@ def add_football_matches_to_calendar(matches_list: list):
         match_date = match["matchDate"]
         match_end_date = match_date + timedelta(hours=2)
 
+        search_previous_event_title = f"{title} - {description}"
         existing_match_event = (
-            calendar_events[title] if title in calendar_events else False
+            calendar_events[search_previous_event_title]
+            if search_previous_event_title in calendar_events
+            else False
         )
 
         if not existing_match_event:  # if event doesn't exist, create it
