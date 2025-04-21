@@ -21,6 +21,15 @@ def get_football_team_ids():
         return {}
 
 
+def extract_json_from_html(response_text):
+    """Extract JSON from HTML response."""
+    if response_text.startswith("<html>"):
+        start_index = response_text.find("<pre>") + len("<pre>")
+        end_index = response_text.find("</pre>")
+        return response_text[start_index:end_index]
+    return response_text
+
+
 def get_football_events():
     team_to_retrieve = get_football_team_ids()
     matches_dict = []
@@ -35,12 +44,7 @@ def get_football_events():
             url = f"https://www.sofascore.com/api/v1/team/{team_id}/events/next/0"
 
             page.goto(url)
-            response_text = page.content()
-            # Remove the HTML wrapper to extract only the JSON part
-            if response_text.startswith("<html>"):
-                start_index = response_text.find("<pre>") + len("<pre>")
-                end_index = response_text.find("</pre>")
-                response_text = response_text[start_index:end_index]
+            response_text = extract_json_from_html(page.content())
 
             if '"error":' in response_text:
                 raise ValueError("Failed to retrieve data: 403 Forbidden")
@@ -70,45 +74,50 @@ def get_football_events():
 def get_formula1_events():
     gps_dict = []
     gp_events_list = [
-        "Practice 1",
-        "Practice 2",
-        "Practice 3",
-        "Qualification 1",
-        "Race",
-        "Sprint Shootout 1",
+        "1st Practice",
+        "Qualification",
+        "Sprint Qualifying",
         "Sprint",
+        "Race",
     ]
 
-    url = "https://www.sofascore.com/api/v1/stage/209766/substages"
+    url = "https://www.sofascore.com/api/v1/stage/209766/extended"
 
-    scraper = cloudscraper.create_scraper()
-    scraped_text = scraper.get(url).text
-    response = json.loads(scraped_text)
+    with sync_playwright() as playwright:
+        browser = playwright.firefox.launch()
+        context = browser.new_context()
+        page = context.new_page()
+        page.goto(url)
+        response_text = extract_json_from_html(page.content())
 
-    grand_prixs = safe_get(response, "stages")
+        if '"error":' in response_text:
+            raise ValueError("Failed to retrieve data: 403 Forbidden")
 
-    for gp in grand_prixs:
+        response = json.loads(response_text)
 
-        if safe_get(gp, "status", "type") == "notstarted":
-            gp_substages = safe_get(gp, "eventSubstages")
-            for gp_substage in gp_substages:
-                if safe_get(gp_substage, "name") in gp_events_list:
-                    new_gp = {}
-                    stage_name = safe_get(gp_substage, "name")
-                    if stage_name == "Qualification 1":
-                        new_gp["stageName"] = "Qualification"
-                    elif stage_name == "Sprint Shootout 1":
-                        new_gp["stageName"] = "Sprint Shootout"
-                    else:
+        grand_prixs = safe_get(response, "stage", "substages")
+
+        for gp in grand_prixs:
+
+            if safe_get(gp, "status", "type") == "notstarted":
+                gp_substages = safe_get(gp, "substages")
+                for gp_substage in gp_substages:
+                    if safe_get(gp_substage, "name") in gp_events_list:
+                        new_gp = {}
+                        stage_name = safe_get(gp_substage, "name")
                         new_gp["stageName"] = stage_name
-                    new_gp["gp"] = safe_get(gp_substage, "stageParent", "description")
-                    new_gp["startDate"] = datetime.datetime.fromtimestamp(
-                        safe_get(gp_substage, "startDateTimestamp")
-                    )
-                    new_gp["circuit"] = safe_get(gp, "info", "circuit")
-                    new_gp["circuitCity"] = safe_get(gp, "info", "circuitCity")
-                    new_gp["circuitCountry"] = safe_get(gp, "info", "circuitCountry")
+                        new_gp["gp"] = safe_get(
+                            gp_substage, "stageParent", "description"
+                        )
+                        new_gp["startDate"] = datetime.datetime.fromtimestamp(
+                            safe_get(gp_substage, "startDateTimestamp")
+                        )
+                        new_gp["circuit"] = safe_get(gp, "info", "circuit")
+                        new_gp["circuitCity"] = safe_get(gp, "info", "circuitCity")
+                        new_gp["circuitCountry"] = safe_get(
+                            gp, "info", "circuitCountry"
+                        )
 
-                    gps_dict.append(new_gp)
+                        gps_dict.append(new_gp)
 
     return gps_dict
