@@ -15,7 +15,7 @@ Add favorite teams and sports events to Google calendar
 3.  Run  `pip install -r requirements.txt`
 
 To access your Google Calendar, the project uses the [Google Calendar Simple API (gcsa)](https://github.com/kuzmoyev/google-calendar-simple-api). Setup the gcsa credentials by following the [gcsa setup documentation](https://google-calendar-simple-api.readthedocs.io/en/latest/getting_started.html#credentials)
-After you´ve created your Google Cloud Platform (GCP) project, and get the `credentials.json`, on the first run, an authentication screen will be displayed, and you should login with your google account. After that, on the same `.credentials` folder, a new file `token.pickle` will be created - this will be your token, so you don´t have to login every time. This token is valid for 7 days, if you want an unlimited token, you must deploy your GCP project to production.
+After you´ve created your Google Cloud Platform (GCP) project, and get the `credentials.json`, on the first run, an authentication screen will be displayed, and you should login with your google account. After that, on the same `.credentials` folder, a new file `token.pickle` will be created - this will be your token, so you don´t have to login every time. This token is valid for 7 days. If you want an unlimited token, you must deploy your GCP project to production.
 
 
 Go to https://www.sofascore.com/ and search for a football team. From the url, get the team id and add it to the `team_ids.json` file that is on the `data` folder.
