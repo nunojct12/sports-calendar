@@ -91,8 +91,11 @@ def add_f1_events_to_calendar(f1_events_list: list):
         if event["stageName"] == "Race":
             event_end_date = event_date + timedelta(hours=2)
 
+        search_previous_event_title = f"{title} - {description}"
         existing_f1_event = (
-            calendar_events[title] if title in calendar_events else False
+            calendar_events[search_previous_event_title]
+            if search_previous_event_title in calendar_events
+            else False
         )
 
         if not existing_f1_event:  # if event doesn't exist, create it

@@ -103,12 +103,15 @@ def get_formula1_events():
 
         grand_prixs_list = safe_get(response, "stage", "substages")
 
+        print(f"Retrieving F1 events")
+
         for gp in grand_prixs_list:
             if safe_get(gp, "status", "type") == "notstarted":
                 gp_substages = safe_get(gp, "substages")
                 for gp_substage in gp_substages:
                     if safe_get(gp_substage, "name") in grand_prixs_events_titles:
                         new_gp = {}
+
                         stage_name = safe_get(gp_substage, "name")
                         new_gp["stageName"] = stage_name
                         new_gp["gp"] = safe_get(
@@ -121,6 +124,10 @@ def get_formula1_events():
                         new_gp["circuitCity"] = safe_get(gp, "info", "circuitCity")
                         new_gp["circuitCountry"] = safe_get(
                             gp, "info", "circuitCountry"
+                        )
+
+                        print(
+                            f"F1 event with details found: {new_gp['gp']} - {new_gp['stageName']}"
                         )
 
                         events_list.append(new_gp)
